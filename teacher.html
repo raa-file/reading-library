@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة المعلمة — مكتبة القراءة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF3F8; --paper:#FFFFFF; --ink:#1D2940; --muted:#64708A; --line:#DCE4EE;
+  --accent:#2B5FD9; --accent-soft:#E4ECFC; --sun:#F6B93B; --sun-soft:#FFF1CC;
+  --ok:#23916A; --ok-soft:#DDF3EA; --near:#C77A12; --near-soft:#FFEBCB;
+  --bad:#D4472F; --bad-soft:#FBE1DB; --miss:#8C96A8; --miss-soft:#E8ECF2;
+  --lv:#2B5FD9; --lv-soft:#E4ECFC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Cairo',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh;padding:20px 16px 56px}
+main{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:8px}
+[hidden]{display:none!important}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-weight:700;font-size:15px;padding:6px 2px}
+.crumb{display:inline-block;background:var(--lv-soft);color:var(--lv);font-weight:700;font-size:13.5px;padding:3px 14px;border-radius:999px}
+header.top{padding:2px 4px}
+header.top h1{font-size:clamp(26px,6vw,36px);font-weight:800;line-height:1.35}
+header.top p{color:var(--muted);font-size:15.5px;margin-top:2px}
+
+.notice{background:var(--sun-soft);border:1px solid #EBCB78;color:#6B4A00;padding:12px 16px;border-radius:12px;font-size:15px}
+.disclaimer{background:#fff;border:1px dashed #B9C4D6;color:var(--muted);padding:12px 16px;border-radius:12px;font-size:14px}
+
+.card{background:var(--paper);border-radius:20px;padding:22px 22px 24px;border:1px solid var(--line)}
+.card h2.label{font-size:15px;font-weight:700;color:var(--muted);margin-bottom:10px}
+
+.starbox{display:flex;gap:12px;justify-content:center}
+.star{display:flex;flex-direction:column;align-items:center;line-height:1.2;min-width:46px}
+.star b{font-size:30px;color:#CBD3DF;transition:color .3s,transform .3s}
+.star small{font-size:11.5px;color:var(--muted)}
+.star.on b{color:var(--sun);transform:scale(1.12)}
+.starbox.mini .star b{font-size:22px}
+.starbox.mini .star small{display:none}
+.starbox.mini{gap:2px}
+
+/* story */
+.story-title{font-size:22px;font-weight:800;margin-bottom:6px}
+.story{font-family:'Noto Naskh Arabic','Cairo',serif;font-size:clamp(26px,5.6vw,34px);line-height:2.35;font-weight:500;padding:6px 0 10px}
+.sent{display:block;padding:0 10px;margin:0 -10px;border-radius:12px;transition:background .2s}
+.sent.speaking{background:var(--sun-soft)}
+.w{display:inline-block;padding:0 4px;border-radius:8px;transition:background .15s,color .15s}
+.story.interactive .w{cursor:pointer}
+.story.interactive .w:hover{background:var(--accent-soft)}
+.w.hl{background:var(--sun);color:#3a2a00}
+.w.ok{background:var(--ok-soft);color:#14684B}
+.w.near{background:var(--near-soft);color:#8A5200}
+.w.bad{background:var(--bad-soft);color:#A5301B}
+.w.miss{background:var(--miss-soft);color:#5E687B;text-decoration:line-through;text-decoration-color:#B3BBC9}
+
+.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:999px;font-size:16px;font-weight:700;background:var(--accent-soft);color:var(--accent);text-decoration:none;transition:background .15s,transform .1s}
+.btn:hover{background:#D3E1FA}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:#2250BC}
+.btn.quiet{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid #F0C3BA}
+.btn svg{width:18px;height:18px;flex:none}
+.hint{color:var(--muted);font-size:14px;margin-top:12px}
+
+/* recorder */
+.rec-card{text-align:center}
+.rec-card .label{text-align:right}
+.mic{width:92px;height:92px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;margin:6px auto 10px;transition:background .2s,transform .1s}
+.mic:active{transform:scale(.95)}
+.mic svg{width:38px;height:38px}
+.mic .i-stop{display:none}
+.mic.on{background:var(--bad);animation:pulse 1.6s infinite}
+.mic.on .i-mic{display:none}
+.mic.on .i-stop{display:block}
+.mic:disabled{background:var(--miss);cursor:wait}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,71,47,.4)}70%{box-shadow:0 0 0 22px rgba(212,71,47,0)}100%{box-shadow:0 0 0 0 rgba(212,71,47,0)}}
+#micLabel{font-weight:700;font-size:17px}
+#timer{color:var(--muted);font-variant-numeric:tabular-nums;font-size:15px;min-height:24px}
+.live{min-height:28px;margin-top:8px;color:var(--muted);font-size:15px;padding:0 8px}
+
+/* result */
+.score-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;justify-content:center;padding:4px 0 8px}
+.ring{position:relative;width:170px;height:170px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(90deg) scaleX(-1)}
+.ring .track{stroke:var(--line)}
+.ring .bar{transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800;font-variant-numeric:tabular-nums}
+.verdict{text-align:center;flex:1;min-width:200px}
+.verdict .big{font-size:clamp(24px,5vw,30px);font-weight:800;line-height:1.4}
+.verdict .small{color:var(--muted);margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0 6px}
+.stat{background:var(--bg);border-radius:14px;padding:12px 8px;text-align:center}
+.stat b{display:block;font-size:24px;font-weight:800;line-height:1.3}
+.stat span{font-size:13px;color:var(--muted)}
+.block{margin-top:20px}
+.block h3{font-size:16px;font-weight:700;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:'Noto Naskh Arabic','Cairo',serif;font-size:20px;padding:2px 12px;border-radius:10px;font-weight:500}
+.chip.ok{background:var(--ok-soft);color:#14684B}
+.chip.near{background:var(--near-soft);color:#8A5200}
+.chip.bad{background:var(--bad-soft);color:#A5301B}
+.chip.miss{background:var(--miss-soft);color:#5E687B}
+.chip small{font-family:'Cairo',sans-serif;font-size:13px;opacity:.85;margin-inline-start:6px}
+.empty{color:var(--muted);font-size:15px}
+.notes{list-style:none;display:flex;flex-direction:column;gap:8px}
+.notes li{background:var(--bg);border-radius:12px;padding:10px 14px;font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-inline-end:5px;vertical-align:-1px}
+.result .story{font-size:clamp(22px,4.8vw,28px);line-height:2.2}
+audio{width:100%;margin-top:6px}
+
+/* challenge */
+.dots{display:flex;gap:7px;justify-content:center;margin-bottom:10px}
+.dots i{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.dots i.cur{background:var(--accent)}
+.dots i.ok{background:var(--ok)}
+.dots i.bad{background:var(--bad)}
+.qcount{text-align:center;color:var(--muted);font-size:14px;margin-bottom:6px}
+.q-text{font-family:'Noto Naskh Arabic','Cairo',serif;font-size:clamp(22px,4.8vw,28px);font-weight:700;line-height:1.9;margin-bottom:10px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:right;padding:14px 18px;border-radius:14px;border:2px solid var(--line);background:#fff;font-size:20px;font-weight:600;font-family:'Noto Naskh Arabic','Cairo',serif;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.q-fb{min-height:30px;margin:12px 0 4px;font-weight:700;font-size:16px}
+.q-fb.ok{color:var(--ok)}
+.q-fb.bad{color:var(--bad)}
+.summary{text-align:center}
+.summary .big{font-size:30px;font-weight:800}
+.summary p{color:var(--muted);margin:4px 0 12px}
+.name-field{display:flex;flex-direction:column;gap:4px;margin:12px 0}
+.name-field label{font-size:14px;color:var(--muted);font-weight:600}
+.name-field input{font-family:inherit;font-size:17px;padding:10px 14px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+
+/* toast */
+.toast{position:fixed;top:16px;left:50%;transform:translate(-50%,-140%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:16px;z-index:50;display:flex;align-items:center;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.2,.9,.3,1.2);max-width:92vw}
+.toast.show{transform:translate(-50%,0)}
+.toast .e{font-size:30px}
+.toast b{display:block;font-size:15px}
+.toast span{font-size:13px;opacity:.85}
+
+/* home */
+.hero{padding:6px 4px}
+.overall{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px 20px}
+.overall .t{font-weight:700;margin-bottom:8px}
+.pbar{height:12px;background:var(--line);border-radius:999px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--sun);border-radius:999px;transition:width .6s}
+.how{font-size:13.5px;color:var(--muted);margin-top:10px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.badge{background:var(--bg);border-radius:16px;padding:12px 6px;text-align:center;filter:grayscale(1);opacity:.5;transition:all .3s}
+.badge.on{filter:none;opacity:1;background:var(--sun-soft)}
+.badge .e{font-size:30px;line-height:1.2}
+.badge b{display:block;font-size:13.5px;line-height:1.35;margin-top:2px}
+.badge small{display:block;font-size:11.5px;color:var(--muted);line-height:1.35}
+.level{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px 18px 20px;border-top:5px solid var(--lv)}
+.level-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.level-head .e{font-size:30px}
+.level-head h2{font-size:19px;font-weight:800;line-height:1.3}
+.level-head p{font-size:13.5px;color:var(--muted)}
+.level-head .cnt{margin-inline-start:auto;font-weight:700;color:var(--lv);background:var(--lv-soft);padding:2px 12px;border-radius:999px;font-size:14px;white-space:nowrap}
+.scards{display:flex;flex-direction:column;gap:10px}
+.scard{display:flex;align-items:center;gap:14px;padding:12px 14px;border:2px solid var(--line);border-radius:16px;text-decoration:none;background:#fff;transition:border-color .15s,transform .1s}
+.scard:hover{border-color:var(--lv)}
+.scard:active{transform:scale(.99)}
+.scard .e{font-size:34px}
+.scard .m{flex:1;min-width:0}
+.scard .m b{display:block;font-family:'Noto Naskh Arabic','Cairo',serif;font-size:21px;line-height:1.5}
+.scard .m span{font-size:13px;color:var(--muted)}
+.scard.done .m span{color:var(--ok);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* identity + cloud */
+.idfields{display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:right;margin:2px 0 14px}
+.idfields label{display:block;font-size:13px;color:var(--muted);font-weight:600}
+.idfields input{width:100%;font-family:inherit;font-size:16px;padding:9px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.idfields input.need{border-color:var(--bad);background:var(--bad-soft)}
+.consent{font-size:12.5px;color:var(--muted);text-align:right;margin:-4px 0 12px}
+.send-status{margin-top:14px;padding:10px 14px;border-radius:12px;font-size:15px;font-weight:600;background:var(--accent-soft);color:var(--accent)}
+.send-status.ok{background:var(--ok-soft);color:#14684B}
+.send-status.warn{background:var(--near-soft);color:#8A5200}
+.send-status.bad{background:var(--bad-soft);color:#A5301B}
+@media (max-width:480px){.idfields{grid-template-columns:1fr}}
+
+/* teacher dashboard */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.toolbar .grp{display:flex;flex-wrap:wrap;gap:8px}
+.btn.sm{padding:7px 14px;font-size:14px}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.filters label{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.filters select,.filters input{width:100%;font-family:inherit;font-size:15px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:12px 14px}
+.kpi b{display:block;font-size:26px;font-weight:800;line-height:1.3}
+.kpi span{font-size:13px;color:var(--muted)}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:999px;background:var(--bg);font-weight:700;font-size:14.5px;color:var(--muted)}
+.tab.on{background:var(--accent);color:#fff}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.t{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px}
+table.t th{background:var(--bg);color:var(--muted);font-weight:700;text-align:right;padding:8px 10px;white-space:nowrap}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+table.t tr.click{cursor:pointer}
+table.t tr.click:hover td{background:#F6F9FD}
+.pill{display:inline-block;min-width:46px;text-align:center;padding:1px 10px;border-radius:999px;font-weight:800;font-size:14px}
+.pill.g{background:var(--ok-soft);color:#14684B}
+.pill.y{background:var(--near-soft);color:#8A5200}
+.pill.r{background:var(--bad-soft);color:#A5301B}
+.pill.n{background:var(--miss-soft);color:#5E687B}
+.modal{position:fixed;inset:0;background:rgba(20,30,50,.55);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto}
+.modal .sheet{background:#fff;border-radius:20px;max-width:720px;width:100%;padding:20px 20px 24px;position:relative}
+.modal .x{position:absolute;top:10px;left:12px;background:var(--bg);border-radius:50%;width:34px;height:34px;font-size:18px}
+.modal h2{font-size:21px;margin:0 0 2px;font-weight:800}
+.modal .sub{color:var(--muted);font-size:14px;margin-bottom:12px}
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+@media (max-width:480px){.mini-stats{grid-template-columns:repeat(2,1fr)}}
+.qa td.ok{color:#14684B;font-weight:700}
+.qa td.bad{color:#A5301B;font-weight:700}
+.wordrank{display:flex;flex-wrap:wrap;gap:8px}
+.wordrank .chip b{font-family:'Cairo',sans-serif;font-size:13px;margin-inline-start:6px;opacity:.8}
+.bar-row{display:flex;align-items:center;gap:10px;margin:5px 0;font-size:13.5px}
+.bar-row .lbl{width:84px;color:var(--muted);flex:none}
+.bar-row .bar{flex:1;height:14px;background:var(--bg);border-radius:8px;overflow:hidden}
+.bar-row .bar i{display:block;height:100%;background:var(--accent)}
+.bar-row .n{width:34px;text-align:left;font-weight:700}
+@media print{
+  body{background:#fff;padding:0}
+  .no-print,.modal .x,.btn,.tabs{display:none!important}
+  .card{border:0;padding:0}
+}
+
+main{max-width:1000px}
+</style>
+</head>
+<body>
+<main>
+
+  <!-- تسجيل الدخول -->
+  <section id="loginView" class="card" style="max-width:420px;margin:40px auto 0" hidden>
+    <h1 style="font-size:26px;font-weight:800;margin-bottom:4px">🔐 لوحة المعلمة</h1>
+    <p class="hint" style="margin:0 0 14px">أدخلي كلمة المرور للاطلاع على نتائج الطالبات وتسجيلاتهن.</p>
+    <div class="name-field"><label for="pw">كلمة المرور</label><input id="pw" type="password" autocomplete="current-password" dir="ltr"></div>
+    <div class="row"><button class="btn primary" id="loginBtn" style="flex:1">دخول</button></div>
+    <div class="send-status bad" id="loginErr" hidden style="margin-top:12px"></div>
+  </section>
+
+  <section id="setupView" class="card" hidden>
+    <h1 style="font-size:24px;font-weight:800;margin-bottom:6px">⚙️ لم يتم ربط قاعدة البيانات بعد</h1>
+    <p>افتحي الملف <b dir="ltr">config.js</b> وضعي رابط مشروع Supabase والمفتاح العام (anon)، ثم أعيدي تحميل الصفحة. خطوات الإعداد في ملف <b dir="ltr">README.md</b>.</p>
+  </section>
+
+  <!-- اللوحة -->
+  <div id="dashView" hidden style="display:none;flex-direction:column;gap:16px">
+    <header class="top">
+      <div class="toolbar">
+        <h1>📊 لوحة المعلمة</h1>
+        <div class="grp no-print">
+          <button class="btn sm" id="refreshBtn">↻ تحديث</button>
+          <button class="btn sm" id="csvBtn">⬇ تصدير Excel (CSV)</button>
+          <button class="btn sm" id="printBtn">🖨 طباعة</button>
+          <button class="btn sm quiet" id="logoutBtn">خروج</button>
+        </div>
+      </div>
+      <p id="updated"></p>
+    </header>
+
+    <section class="card no-print">
+      <div class="filters">
+        <div><label for="fClass">الصف / الشعبة</label><select id="fClass"></select></div>
+        <div><label for="fLevel">المستوى</label><select id="fLevel"></select></div>
+        <div><label for="fStory">القصة</label><select id="fStory"></select></div>
+        <div><label for="fFrom">من تاريخ</label><input id="fFrom" type="date"></div>
+        <div><label for="fTo">إلى تاريخ</label><input id="fTo" type="date"></div>
+        <div><label for="fQ">بحث بالاسم</label><input id="fQ" type="search" placeholder="اسم الطالبة"></div>
+      </div>
+    </section>
+
+    <section class="kpis" id="kpis"></section>
+
+    <section class="card">
+      <div class="tabs no-print" role="tablist">
+        <button class="tab on" data-t="students">الطالبات</button>
+        <button class="tab" data-t="readings">كل القراءات</button>
+        <button class="tab" data-t="stories">القصص</button>
+        <button class="tab" data-t="words">أكثر الكلمات خطأً</button>
+      </div>
+      <div id="tabBody"></div>
+    </section>
+
+    <div class="disclaimer" id="disc"></div>
+  </div>
+</main>
+
+<div id="modalRoot"></div>
+
+<script src="config.js"></script>
+<script>
+/* =========================================================
+   الأساس المشترك: المستويات، التقدّم، النجوم، الشارات، التقارير
+   ========================================================= */
+const LEVELS = [
+  {id:1, emoji:'🌱', name:'المستوى الأول', sub:'بداية القراءة',  desc:'جُمَلٌ قصيرة وكلمات سهلة',        color:'#23916A', soft:'#DDF3EA'},
+  {id:2, emoji:'🌿', name:'المستوى الثاني', sub:'قراءة متوسطة', desc:'جُمَلٌ أطول وأحداث متسلسلة',       color:'#2B5FD9', soft:'#E4ECFC'},
+  {id:3, emoji:'🌳', name:'المستوى الثالث', sub:'قراءة متقدمة', desc:'نصوص أطول وكلمات أغنى',           color:'#7A4FD6', soft:'#EEE7FB'}
+];
+const META = [{"id": 1, "level": 1, "emoji": "🐱", "title": "سامي وسارة", "n": 7}, {"id": 2, "level": 1, "emoji": "🦆", "title": "البَطَّةُ الصَّغيرَةُ", "n": 5}, {"id": 3, "level": 1, "emoji": "🍎", "title": "التُّفّاحَةُ الحَمْراءُ", "n": 5}, {"id": 4, "level": 2, "emoji": "🐰", "title": "الأَرْنَبُ والجَزَرَةُ", "n": 7}, {"id": 5, "level": 2, "emoji": "🏖️", "title": "رِحْلَةٌ إِلى البَحْرِ", "n": 6}, {"id": 6, "level": 2, "emoji": "🐦", "title": "العُصْفورُ والعُشُّ", "n": 7}, {"id": 7, "level": 3, "emoji": "🎒", "title": "الوَلَدُ الأَمينُ", "n": 8}, {"id": 8, "level": 3, "emoji": "🐝", "title": "النَّحْلَةُ النَّشيطَةُ", "n": 7}, {"id": 9, "level": 3, "emoji": "🌈", "title": "المَطَرُ الأَوَّلُ", "n": 8}];
+const DISCLAIMER = 'تقييم الصوت يعتمد على دقة التعرف على الكلام، وقد يتأثر بالضوضاء واللهجة وطريقة النطق؛ لذلك لا ينبغي اعتباره حكمًا نهائيًا على مستوى الطالبة.';
+const STAR_RULES = [
+  {k:'قراءة', t:'نجمة القراءة: ٦٠٪ أو أكثر في تقييم القراءة'},
+  {k:'إتقان', t:'نجمة الإتقان: ٨٥٪ أو أكثر في تقييم القراءة'},
+  {k:'فهم',   t:'نجمة الفهم: ٧٥٪ أو أكثر في أسئلة التحدي'}
+];
+
+/* ---------- التخزين ---------- */
+const KEY = 'qaraa_progress_v1';
+function loadP(){
+  try{
+    const p = JSON.parse(localStorage.getItem(KEY));
+    if(p && p.stories) { p.badges = p.badges || {}; return p; }
+  }catch(e){}
+  return {name:'', stories:{}, badges:{}};
+}
+function saveP(p){ try{ localStorage.setItem(KEY, JSON.stringify(p)); }catch(e){} }
+
+/* ---------- النجوم والإنجاز ---------- */
+function starsOf(sp){
+  if(!sp) return [false,false,false];
+  const r = sp.bestRead || 0, c = sp.bestChallenge || 0;
+  return [r>=60, r>=85, c>=75];
+}
+const starCount = sp => starsOf(sp).filter(Boolean).length;
+const isDone = sp => !!sp && (sp.bestRead||0) >= 60;
+function totals(p){
+  let done = 0, stars = 0;
+  META.forEach(m=>{ const sp = p.stories[m.id]; if(isDone(sp)) done++; stars += starCount(sp); });
+  return {done, stars, maxStars: META.length*3};
+}
+const levelDone = (p,l) => META.filter(m=>m.level===l).every(m=>isDone(p.stories[m.id]));
+
+const BADGES = [
+  {id:'first', emoji:'🌱', title:'البداية',        desc:'أكملتِ أول قصة',                 test:(p,t)=>t.done>=1},
+  {id:'three', emoji:'📚', title:'قارئة نشيطة',    desc:'أكملتِ ٣ قصص',                   test:(p,t)=>t.done>=3},
+  {id:'l1',    emoji:'🥉', title:'المستوى الأول',  desc:'أنهيتِ كل قصص المستوى الأول',     test:p=>levelDone(p,1)},
+  {id:'l2',    emoji:'🥈', title:'المستوى الثاني', desc:'أنهيتِ كل قصص المستوى الثاني',    test:p=>levelDone(p,2)},
+  {id:'l3',    emoji:'🥇', title:'المستوى الثالث', desc:'أنهيتِ كل قصص المستوى الثالث',    test:p=>levelDone(p,3)},
+  {id:'great', emoji:'🌟', title:'قراءة ممتازة',   desc:'حصلتِ على ٩٠٪ أو أكثر في قصة',   test:p=>META.some(m=>((p.stories[m.id]||{}).bestRead||0)>=90)},
+  {id:'smart', emoji:'🎯', title:'فاهمة ذكية',     desc:'أجبتِ عن كل أسئلة قصة بشكل صحيح', test:p=>META.some(m=>((p.stories[m.id]||{}).bestChallenge||0)>=100)},
+  {id:'grit',  emoji:'💪', title:'مثابرة',         desc:'أعدتِ قراءة قصة ٣ مرات',         test:p=>META.some(m=>((p.stories[m.id]||{}).attempts||0)>=3)},
+  {id:'s10',   emoji:'✨', title:'عشر نجمات',      desc:'جمعتِ ١٠ نجمات',                 test:(p,t)=>t.stars>=10},
+  {id:'s20',   emoji:'💫', title:'عشرون نجمة',     desc:'جمعتِ ٢٠ نجمة',                  test:(p,t)=>t.stars>=20},
+  {id:'all',   emoji:'🏆', title:'بطلة القراءة',   desc:'أكملتِ كل القصص',                test:(p,t)=>t.done>=META.length}
+];
+function checkBadges(p){
+  const t = totals(p), fresh = [];
+  BADGES.forEach(b=>{
+    if(!p.badges[b.id] && b.test(p,t)){ p.badges[b.id] = Date.now(); fresh.push(b); }
+  });
+  return fresh;
+}
+
+/* ---------- إشعار الشارات ---------- */
+const toastQ = []; let toasting = false;
+function toastBadges(list){ list.forEach(b=>toastQ.push(b)); if(!toasting) nextToast(); }
+function nextToast(){
+  const b = toastQ.shift();
+  if(!b){ toasting = false; return; }
+  toasting = true;
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.setAttribute('role','status');
+  const e = document.createElement('div'); e.className='e'; e.textContent = b.emoji;
+  const w = document.createElement('div');
+  const t1 = document.createElement('b'); t1.textContent = 'شارة جديدة: ' + b.title;
+  const t2 = document.createElement('span'); t2.textContent = b.desc;
+  w.appendChild(t1); w.appendChild(t2);
+  el.appendChild(e); el.appendChild(w);
+  document.body.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>{ el.remove(); nextToast(); }, 380); }, 3400);
+}
+
+/* ---------- تقدير القراءة ---------- */
+function levelFor(p){
+  if(p>=90) return {t:'قراءة ممتازة 🌟', s:'أحسنتِ! نطقك واضح وقراءتك متقنة.', c:'#23916A'};
+  if(p>=75) return {t:'قراءة جيدة جدًا 👏', s:'قريبة من الإتقان، بقيت كلمات قليلة تحتاج تدريبًا.', c:'#2B8F9A'};
+  if(p>=60) return {t:'قراءة جيدة 💪', s:'بداية جميلة، أعيدي القراءة وركّزي على الكلمات الملوّنة.', c:'#C77A12'};
+  if(p>=40) return {t:'تحتاجين إلى مزيد من التدريب 📖', s:'استمعي للقصة مرة أخرى ببطء ثم أعيدي المحاولة.', c:'#D4472F'};
+  return {t:'لنحاول مرة أخرى 🌱', s:'استمعي للقصة ببطء، واقرئي جملة جملة.', c:'#D4472F'};
+}
+
+/* ---------- التقارير القابلة للتنزيل ---------- */
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function fdate(ts){
+  try{ return new Date(ts).toLocaleDateString('ar-SA-u-ca-gregory',{year:'numeric',month:'long',day:'numeric'}); }
+  catch(e){ return new Date(ts).toLocaleDateString(); }
+}
+const REPORT_CSS = `
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo','Segoe UI',Tahoma,Arial,sans-serif;color:#1D2940;background:#fff;line-height:1.8;padding:28px 18px}
+main{max-width:760px;margin:0 auto}
+h1{font-size:28px;margin-bottom:4px}
+h2{font-size:18px;margin:26px 0 8px;padding-bottom:4px;border-bottom:2px solid #E4ECFC}
+.sub{color:#64708A;font-size:14px}
+.meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}
+.meta div{background:#F3F6FA;border-radius:10px;padding:8px 12px}
+.meta span{display:block;font-size:12px;color:#64708A}
+.meta b{font-size:16px}
+.score{display:flex;align-items:center;gap:18px;border:2px solid #DCE4EE;border-radius:16px;padding:14px 18px;margin:10px 0}
+.score .n{font-size:44px;font-weight:800;line-height:1.1}
+.score .t{font-size:19px;font-weight:800}
+.score .s{font-size:13.5px;color:#64708A}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.grid3 div{background:#F3F6FA;border-radius:10px;padding:8px;text-align:center}
+.grid3 b{display:block;font-size:22px}
+.grid3 span{font-size:12.5px;color:#64708A}
+.chips span{display:inline-block;margin:3px;padding:1px 10px;border-radius:8px;font-size:17px}
+.c-ok{background:#DDF3EA;color:#14684B}
+.c-near{background:#FFEBCB;color:#8A5200}
+.c-bad{background:#FBE1DB;color:#A5301B}
+.c-miss{background:#E8ECF2;color:#5E687B}
+.chips small{font-size:12px;opacity:.85;margin-inline-start:5px}
+ul{padding-inline-start:20px}
+li{margin:4px 0;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:6px}
+th,td{border:1px solid #DCE4EE;padding:6px 8px;text-align:right;vertical-align:top}
+th{background:#F3F6FA}
+.stars{font-size:26px;color:#F6B93B;letter-spacing:2px}
+.stars .off{color:#CBD3DF}
+.disc{margin-top:26px;padding:12px 16px;border:1px dashed #9AA7BD;border-radius:12px;font-size:13.5px;color:#4C586F;background:#FAFBFD}
+.foot{margin-top:18px;font-size:12px;color:#8A94A8;text-align:center}
+.empty{color:#8A94A8;font-size:14px}
+@media print{body{padding:0}h2{break-after:avoid}table,.score{break-inside:avoid}}
+`;
+function reportShell(title, body){
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    '<title>' + esc(title) + '</title><style>' + REPORT_CSS + '</style></head><body><main>' +
+    body +
+    '<div class="disc"><b>تنبيه:</b> ' + esc(DISCLAIMER) + '</div>' +
+    '<div class="foot">أُنشئ هذا التقرير في ' + esc(fdate(Date.now())) + ' من مكتبة القراءة</div>' +
+    '</main></body></html>';
+}
+function starsHTML(sp){
+  const st = starsOf(sp);
+  return '<span class="stars">' + st.map(x=>x?'★':'<span class="off">★</span>').join('') + '</span>';
+}
+function storyReportHTML(id, p){
+  const m = META.find(x=>x.id===id), sp = p.stories[id] || {}, L = sp.last, C = sp.lastChallenge;
+  const lv = LEVELS.find(l=>l.id===m.level);
+  const st = starsOf(sp);
+  let h = '<h1>تقرير القراءة</h1><div class="sub">' + esc(m.emoji + ' ' + m.title) + '</div>';
+  h += '<div class="meta">' +
+    '<div><span>اسم الطالبة</span><b>' + esc(p.name || '—') + '</b></div>' +
+    '<div><span>المستوى</span><b>' + esc(lv.name + ' · ' + lv.sub) + '</b></div>' +
+    '<div><span>القصة</span><b>' + esc(m.title) + '</b></div>' +
+    '<div><span>تاريخ آخر محاولة</span><b>' + esc(L ? fdate(L.date) : '—') + '</b></div></div>';
+
+  h += '<h2>نتيجة القراءة</h2>';
+  if(!L){
+    h += '<p class="empty">لم تُسجَّل قراءة لهذه القصة بعد.</p>';
+  }else{
+    const lf = levelFor(L.score);
+    h += '<div class="score"><div class="n" style="color:' + lf.c + '">' + L.score + '%</div><div><div class="t">' + esc(lf.t) + '</div><div class="s">' + esc(lf.s) + '</div></div></div>';
+    h += '<div class="grid3"><div><b>' + L.ok + ' / ' + L.N + '</b><span>كلمات صحيحة</span></div>' +
+         '<div><b>' + (L.near + L.bad + L.miss) + '</b><span>كلمات تحتاج تدريبًا</span></div>' +
+         '<div><b>' + L.wpm + '</b><span>كلمة في الدقيقة</span></div></div>';
+    h += '<h2>الكلمات الصحيحة</h2><div class="chips">' +
+      (L.okWords.length ? L.okWords.map(w=>'<span class="c-ok">' + esc(w) + '</span>').join('') : '<span class="empty">—</span>') + '</div>';
+    h += '<h2>الكلمات التي أُخطئ فيها</h2><div class="chips">' +
+      (L.badWords.length ? L.badWords.map(b=>'<span class="c-' + esc(b.status) + '">' + esc(b.w) + '<small>' + (b.heard ? 'سُمعت: ' + esc(b.heard) : 'لم تُسمع') + '</small></span>').join('') : '<span class="empty">لا أخطاء 🎉</span>') + '</div>';
+    h += '<h2>ملاحظات على النطق والطلاقة</h2><ul>' + L.notes.map(n=>'<li>' + esc(n) + '</li>').join('') + '</ul>';
+  }
+
+  h += '<h2>تحدّي الفهم</h2>';
+  if(!C){
+    h += '<p class="empty">لم يُنجَز التحدي بعد.</p>';
+  }else{
+    h += '<p>النتيجة: <b>' + C.correct + ' من ' + C.total + '</b> (' + C.pct + '%)</p>' +
+      '<table><tr><th>السؤال</th><th>إجابة الطالبة</th><th>الإجابة الصحيحة</th><th></th></tr>' +
+      C.answers.map(a=>'<tr><td>' + esc(a.q) + '</td><td>' + esc(a.chosen) + '</td><td>' + esc(a.right) + '</td><td>' + (a.correct?'✔':'✘') + '</td></tr>').join('') +
+      '</table>';
+  }
+
+  h += '<h2>النجوم</h2><div>' + starsHTML(sp) + '</div>' +
+       '<div class="sub">' + (st[0]?'✔':'✘') + ' القراءة · ' + (st[1]?'✔':'✘') + ' الإتقان · ' + (st[2]?'✔':'✘') + ' الفهم</div>';
+  return reportShell('تقرير القراءة — ' + m.title, h);
+}
+function overallReportHTML(p){
+  const t = totals(p);
+  let h = '<h1>التقرير الشامل للقراءة</h1><div class="sub">مكتبة القراءة · ' + META.length + ' قصص في ٣ مستويات</div>';
+  h += '<div class="meta"><div><span>اسم الطالبة</span><b>' + esc(p.name || '—') + '</b></div>' +
+       '<div><span>القصص المكتملة</span><b>' + t.done + ' من ' + META.length + '</b></div>' +
+       '<div><span>النجوم</span><b>' + t.stars + ' من ' + t.maxStars + '</b></div>' +
+       '<div><span>الشارات</span><b>' + Object.keys(p.badges).length + ' من ' + BADGES.length + '</b></div></div>';
+  h += '<h2>تفصيل القصص</h2><table><tr><th>المستوى</th><th>القصة</th><th>الحالة</th><th>أفضل قراءة</th><th>التحدي</th><th>النجوم</th></tr>';
+  META.forEach(m=>{
+    const sp = p.stories[m.id], lv = LEVELS.find(l=>l.id===m.level);
+    const status = isDone(sp) ? 'مكتملة' : (sp && sp.last ? 'قيد التقدّم' : 'لم تبدأ');
+    h += '<tr><td>' + esc(lv.name) + '</td><td>' + esc(m.emoji + ' ' + m.title) + '</td><td>' + status + '</td><td>' +
+         (sp && sp.bestRead != null ? sp.bestRead + '%' : '—') + '</td><td>' +
+         (sp && sp.bestChallenge != null ? sp.bestChallenge + '%' : '—') + '</td><td>' + starsHTML(sp) + '</td></tr>';
+  });
+  h += '</table>';
+  const earned = BADGES.filter(b=>p.badges[b.id]);
+  h += '<h2>الشارات المكتسبة</h2>' + (earned.length
+    ? '<ul>' + earned.map(b=>'<li>' + esc(b.emoji + ' ' + b.title + ' — ' + b.desc) + '</li>').join('') + '</ul>'
+    : '<p class="empty">لا توجد شارات بعد.</p>');
+  return reportShell('التقرير الشامل للقراءة', h);
+}
+function downloadHTML(filename, html){
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function printHTML(html){
+  const w = window.open('', '_blank');
+  if(!w){ alert('تعذّر فتح نافذة الطباعة. اسمحي بالنوافذ المنبثقة أو استخدمي زر التنزيل.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 600);
+}
+
+
+/* =========================================================
+   الإرسال إلى المعلمة (Supabase عبر الواجهة المباشرة بدون مكتبات)
+   ========================================================= */
+const CFG = window.READING_CONFIG || {};
+const cloudOn = () => !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
+const SB = () => String(CFG.SUPABASE_URL || '').replace(/\/$/,'');
+function sbHeaders(extra){
+  return Object.assign({apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_ANON_KEY}, extra || {});
+}
+function uid(){
+  try{ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+async function sbInsert(table, row){
+  const r = await fetch(SB() + '/rest/v1/' + table, {
+    method:'POST',
+    headers: sbHeaders({'Content-Type':'application/json', Prefer:'return=minimal'}),
+    body: JSON.stringify(row)
+  });
+  if(!r.ok) throw new Error('insert ' + table + ' ' + r.status);
+}
+async function sbUpload(blob){
+  const type = (blob.type || 'audio/webm').split(';')[0];
+  const ext = type.indexOf('mp4')>=0 ? 'm4a' : type.indexOf('ogg')>=0 ? 'ogg' : type.indexOf('wav')>=0 ? 'wav' : type.indexOf('mpeg')>=0 ? 'mp3' : 'webm';
+  const d = new Date();
+  const path = d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '/' + uid() + '.' + ext;
+  const r = await fetch(SB() + '/storage/v1/object/recordings/' + path, {
+    method:'POST',
+    headers: sbHeaders({'Content-Type': type, 'x-upsert':'false'}),
+    body: blob
+  });
+  if(!r.ok) throw new Error('upload ' + r.status);
+  return path;
+}
+const OUTBOX = 'qaraa_outbox_v1';
+function outboxGet(){ try{ return JSON.parse(localStorage.getItem(OUTBOX)) || []; }catch(e){ return []; } }
+function outboxSet(a){ try{ localStorage.setItem(OUTBOX, JSON.stringify(a.slice(-40))); }catch(e){} }
+function outboxAdd(table,row){ const a = outboxGet(); a.push({table,row}); outboxSet(a); }
+async function retryOutbox(){
+  if(!cloudOn()) return;
+  const a = outboxGet(); if(!a.length) return;
+  const left = [];
+  for(const it of a){ try{ await sbInsert(it.table, it.row); }catch(e){ left.push(it); } }
+  outboxSet(left);
+}
+/* يرجع: 'off' | 'ok' | 'noaudio' | 'fail' */
+async function sendReading(row, blob){
+  if(!cloudOn()) return 'off';
+  let state = 'ok';
+  try{
+    if(blob && blob.size > 0 && blob.size < 5*1024*1024){
+      try{ row.audio_path = await sbUpload(blob); }catch(e){ row.audio_path = null; state = 'noaudio'; }
+    }else{ row.audio_path = null; state = 'noaudio'; }
+    await sbInsert('readings', row);
+    return state;
+  }catch(e){ row.audio_path = null; outboxAdd('readings', row); return 'fail'; }
+}
+async function sendChallenge(row){
+  if(!cloudOn()) return 'off';
+  try{ await sbInsert('challenges', row); return 'ok'; }
+  catch(e){ outboxAdd('challenges', row); return 'fail'; }
+}
+
+</script>
+<script>
+const $ = id => document.getElementById(id);
+$('disc').textContent = DISCLAIMER + ' استخدمي النتائج كمؤشّر للمتابعة، واستمعي للتسجيل قبل أي قرار.';
+
+/* ---------- الجلسة ---------- */
+const TK = 'qaraa_teacher_session';
+function getSess(){ try{ return JSON.parse(sessionStorage.getItem(TK)); }catch(e){ return null; } }
+function setSess(s){ try{ s ? sessionStorage.setItem(TK, JSON.stringify(s)) : sessionStorage.removeItem(TK); }catch(e){} }
+async function authCall(grant, body){
+  const r = await fetch(SB() + '/auth/v1/token?grant_type=' + grant, {
+    method:'POST', headers:{apikey: CFG.SUPABASE_ANON_KEY, 'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok || !j.access_token) throw new Error('auth');
+  setSess({access: j.access_token, refresh: j.refresh_token});
+}
+async function api(path, opt, retry){
+  const s = getSess(); if(!s) throw new Error('noauth');
+  const r = await fetch(SB() + path, Object.assign({}, opt, {headers: Object.assign({apikey: CFG.SUPABASE_ANON_KEY, Authorization:'Bearer ' + s.access}, (opt && opt.headers) || {})}));
+  if(r.status === 401 && !retry && s.refresh){
+    try{ await authCall('refresh_token', {refresh_token: s.refresh}); return api(path, opt, true); }catch(e){ setSess(null); throw new Error('noauth'); }
+  }
+  if(!r.ok) throw new Error('http ' + r.status);
+  return r;
+}
+
+/* ---------- البيانات ---------- */
+let R = [], C = [], tab = 'students';
+const clamp = n => Math.max(0, Math.min(100, Math.round(n)));
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+const keyOf = r => ((r.class_name||'').trim() + '|' + (r.student_name||'').trim().replace(/\s+/g,' '));
+const cls = v => v>=85 ? 'g' : v>=60 ? 'y' : 'r';
+const pill = v => v==null ? '<span class="pill n">—</span>' : '<span class="pill ' + cls(v) + '">' + Math.round(v) + '%</span>';
+const dt = ts => { try{ return new Date(ts).toLocaleString('ar-SA-u-ca-gregory',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ts; } };
+const dayKey = ts => { const d = new Date(ts); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+
+async function loadAll(){
+  $('updated').textContent = 'جارٍ التحديث…';
+  const [a,b] = await Promise.all([
+    api('/rest/v1/readings?select=*&order=created_at.desc&limit=3000').then(r=>r.json()),
+    api('/rest/v1/challenges?select=*&order=created_at.desc&limit=3000').then(r=>r.json())
+  ]);
+  R = Array.isArray(a) ? a : []; C = Array.isArray(b) ? b : [];
+  fillFilters(); render();
+  $('updated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA-u-ca-gregory',{hour:'2-digit',minute:'2-digit'}) + ' · ' + R.length + ' قراءة';
+}
+
+/* ---------- الفلاتر ---------- */
+function opt(sel, items, first){
+  const cur = sel.value; sel.innerHTML = '';
+  [['', first]].concat(items).forEach(([v,t])=>{ const o = document.createElement('option'); o.value = v; o.textContent = t; sel.appendChild(o); });
+  if([...sel.options].some(o=>o.value===cur)) sel.value = cur;
+}
+function fillFilters(){
+  const classes = [...new Set(R.concat(C).map(r=>(r.class_name||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
+  opt($('fClass'), classes.map(c=>[c,c]), 'كل الصفوف');
+  opt($('fLevel'), LEVELS.map(l=>[String(l.id), l.name + ' — ' + l.sub]), 'كل المستويات');
+  opt($('fStory'), META.map(m=>[String(m.id), m.emoji + ' ' + m.title]), 'كل القصص');
+}
+function filt(list){
+  const c = $('fClass').value, l = $('fLevel').value, s = $('fStory').value, q = $('fQ').value.trim();
+  const f = $('fFrom').value, t = $('fTo').value;
+  return list.filter(r=>{
+    if(c && (r.class_name||'').trim() !== c) return false;
+    if(l && String(r.level) !== l) return false;
+    if(s && String(r.story_id) !== s) return false;
+    if(q && (r.student_name||'').indexOf(q) < 0) return false;
+    const d = dayKey(r.created_at);
+    if(f && d < f) return false;
+    if(t && d > t) return false;
+    return true;
+  });
+}
+['fClass','fLevel','fStory','fFrom','fTo'].forEach(id=>$(id).addEventListener('change', render));
+$('fQ').addEventListener('input', render);
+
+/* ---------- العرض ---------- */
+function students(rs, cs){
+  const m = new Map();
+  rs.forEach(r=>{ const k = keyOf(r); if(!m.has(k)) m.set(k, {k, name:r.student_name, cls:r.class_name, rs:[], cs:[]}); m.get(k).rs.push(r); });
+  cs.forEach(r=>{ const k = keyOf(r); if(m.has(k)) m.get(k).cs.push(r); });
+  return [...m.values()].map(s=>{
+    s.n = s.rs.length;
+    s.avg = avg(s.rs.map(r=>r.score));
+    s.best = Math.max(...s.rs.map(r=>r.score));
+    s.last = s.rs[0];
+    s.wpm = avg(s.rs.map(r=>r.wpm||0));
+    s.ch = s.cs.length ? avg(s.cs.map(c=>c.pct)) : null;
+    s.stories = new Set(s.rs.map(r=>r.story_id)).size;
+    s.attn = s.n >= 1 && (s.last.score < 60 || (s.n>=2 && s.avg < 60));
+    return s;
+  });
+}
+function th(arr){ return '<tr>' + arr.map(x=>'<th>' + x + '</th>').join('') + '</tr>'; }
+
+function render(){
+  const rs = filt(R), cs = filt(C), st = students(rs, cs);
+  $('kpis').innerHTML = [
+    [st.length, 'طالبة'], [rs.length, 'قراءة مسجّلة'],
+    [rs.length ? Math.round(avg(rs.map(r=>r.score))) + '%' : '—', 'متوسط القراءة'],
+    [cs.length ? Math.round(avg(cs.map(c=>c.pct))) + '%' : '—', 'متوسط الفهم'],
+    [rs.length ? Math.round(avg(rs.map(r=>r.wpm||0))) : '—', 'كلمة / دقيقة'],
+    [st.filter(s=>s.attn).length, 'تحتاج متابعة']
+  ].map(k=>'<div class="kpi"><b>' + esc(k[0]) + '</b><span>' + k[1] + '</span></div>').join('');
+
+  const body = $('tabBody');
+  if(!rs.length){ body.innerHTML = '<p class="empty" style="padding:20px 0;text-align:center">لا توجد نتائج مطابقة بعد.</p>'; return; }
+
+  if(tab === 'students'){
+    st.sort((a,b)=> (b.attn - a.attn) || (new Date(b.last.created_at) - new Date(a.last.created_at)));
+    body.innerHTML = '<div class="tbl-wrap"><table class="t">' + th(['الطالبة','الصف','القصص','القراءات','المتوسط','الأفضل','الفهم','سرعة','آخر نشاط','']) +
+      st.map((s,i)=>'<tr class="click" data-i="' + i + '"><td><b>' + esc(s.name) + '</b></td><td>' + esc(s.cls||'—') + '</td><td>' + s.stories + ' / 9</td><td>' + s.n + '</td><td>' + pill(s.avg) + '</td><td>' + pill(s.best) + '</td><td>' + pill(s.ch) + '</td><td>' + Math.round(s.wpm) + '</td><td>' + esc(dt(s.last.created_at)) + '</td><td>' + (s.attn ? '<span style="color:var(--bad);font-weight:700;font-size:13px">⚠ متابعة</span>' : '') + '</td></tr>').join('') +
+      '</table></div>';
+    body.querySelectorAll('tr.click').forEach(tr=>tr.onclick = ()=> openStudent(st[+tr.dataset.i]));
+  }
+  else if(tab === 'readings'){
+    body.innerHTML = '<div class="tbl-wrap"><table class="t">' + th(['التاريخ','الطالبة','الصف','القصة','النتيجة','صحيحة','خطأ','سرعة','تسجيل']) +
+      rs.slice(0,400).map((r,i)=>'<tr class="click" data-i="' + i + '"><td>' + esc(dt(r.created_at)) + '</td><td><b>' + esc(r.student_name) + '</b></td><td>' + esc(r.class_name||'—') + '</td><td>' + esc(r.story_title) + '</td><td>' + pill(r.score) + '</td><td>' + (r.words_ok||0) + '/' + (r.words_total||0) + '</td><td>' + (r.words_wrong||0) + '</td><td>' + (r.wpm||0) + '</td><td>' + (r.audio_path ? '🎧' : '—') + '</td></tr>').join('') +
+      '</table></div>' + (rs.length>400 ? '<p class="hint">يُعرض أحدث ٤٠٠ قراءة. استخدمي الفلاتر أو التصدير لرؤية الباقي.</p>' : '');
+    body.querySelectorAll('tr.click').forEach(tr=>tr.onclick = ()=> openReading(rs[+tr.dataset.i]));
+  }
+  else if(tab === 'stories'){
+    body.innerHTML = '<div class="tbl-wrap"><table class="t">' + th(['القصة','المستوى','الطالبات','القراءات','متوسط القراءة','متوسط الفهم','سرعة']) +
+      META.map(m=>{
+        const a = rs.filter(r=>r.story_id===m.id), b = cs.filter(c=>c.story_id===m.id);
+        const lv = LEVELS.find(l=>l.id===m.level);
+        return '<tr><td><b>' + esc(m.emoji + ' ' + m.title) + '</b></td><td>' + esc(lv.name) + '</td><td>' + new Set(a.map(keyOf)).size + '</td><td>' + a.length + '</td><td>' + (a.length ? pill(avg(a.map(r=>r.score))) : pill(null)) + '</td><td>' + (b.length ? pill(avg(b.map(c=>c.pct))) : pill(null)) + '</td><td>' + (a.length ? Math.round(avg(a.map(r=>r.wpm||0))) : '—') + '</td></tr>';
+      }).join('') + '</table></div>';
+  }
+  else if(tab === 'words'){
+    const m = new Map();
+    rs.forEach(r=>(Array.isArray(r.bad_words)?r.bad_words:[]).forEach(b=>{
+      if(!b || !b.w) return;
+      const e = m.get(b.w) || {w:b.w, n:0, who:new Set(), heard:new Map()};
+      e.n++; e.who.add(keyOf(r)); if(b.heard) e.heard.set(b.heard, (e.heard.get(b.heard)||0)+1);
+      m.set(b.w, e);
+    }));
+    const top = [...m.values()].sort((a,b)=>b.n-a.n || b.who.size-a.who.size).slice(0,40);
+    if(!top.length){ body.innerHTML = '<p class="empty" style="padding:20px 0;text-align:center">لا توجد أخطاء مسجّلة.</p>'; return; }
+    const mx = top[0].n;
+    body.innerHTML = '<p class="hint" style="margin:0 0 8px">الكلمات التي أُخطئ فيها أو لم تُسمع، مرتبة بعدد المرات. مفيدة لاختيار كلمات التدريب في الحصة.</p>' +
+      top.map(e=>{
+        let h = ''; if(e.heard.size){ h = [...e.heard.entries()].sort((a,b)=>b[1]-a[1])[0][0]; }
+        return '<div class="bar-row"><span class="chip bad" style="flex:none;min-width:84px;text-align:center">' + esc(e.w) + '</span><div class="bar"><i style="width:' + Math.round(e.n/mx*100) + '%;background:var(--bad)"></i></div><span class="n">' + e.n + '</span><span class="lbl" style="width:auto;white-space:nowrap">' + e.who.size + ' طالبة' + (h ? ' · سُمعت: ' + esc(h) : '') + '</span></div>';
+      }).join('');
+  }
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick = ()=>{
+  tab = b.dataset.t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on', x===b));
+  render();
+});
+
+/* ---------- نوافذ التفاصيل ---------- */
+function closeModal(){ $('modalRoot').innerHTML = ''; }
+function modal(html){
+  const root = $('modalRoot');
+  root.innerHTML = '<div class="modal"><div class="sheet"><button class="x" aria-label="إغلاق">✕</button>' + html + '</div></div>';
+  root.querySelector('.x').onclick = closeModal;
+  root.querySelector('.modal').addEventListener('click', e=>{ if(e.target.classList.contains('modal')) closeModal(); });
+  return root;
+}
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+async function audioFor(path, holder){
+  try{
+    const r = await api('/storage/v1/object/sign/recordings/' + path.split('/').map(encodeURIComponent).join('/'), {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({expiresIn: 3600})
+    });
+    const j = await r.json();
+    const u = j.signedURL || j.signedUrl;
+    if(!u) throw 0;
+    const a = document.createElement('audio'); a.controls = true; a.preload = 'none';
+    a.src = u.indexOf('http')===0 ? u : SB() + '/storage/v1' + (u[0]==='/'?'':'/') + u;
+    holder.innerHTML = ''; holder.appendChild(a);
+  }catch(e){ holder.innerHTML = '<span class="empty">تعذّر تحميل التسجيل.</span>'; }
+}
+function readingBlock(r){
+  const lf = levelFor(r.score);
+  const bad = Array.isArray(r.bad_words) ? r.bad_words : [], okw = Array.isArray(r.ok_words) ? r.ok_words : [];
+  const notes = Array.isArray(r.notes) ? r.notes : [];
+  return '<div class="score" style="display:flex;align-items:center;gap:16px;border:2px solid var(--line);border-radius:16px;padding:12px 16px;margin:8px 0"><div style="font-size:40px;font-weight:800;color:' + lf.c + '">' + r.score + '%</div><div><div style="font-weight:800">' + esc(lf.t) + '</div><div class="hint" style="margin:0">' + esc(r.story_title) + ' · ' + esc(dt(r.created_at)) + '</div></div></div>' +
+    '<div class="mini-stats"><div class="stat"><b>' + (r.words_ok||0) + ' / ' + (r.words_total||0) + '</b><span>صحيحة</span></div><div class="stat"><b>' + (r.words_wrong||0) + '</b><span>تحتاج تدريبًا</span></div><div class="stat"><b>' + (r.wpm||0) + '</b><span>كلمة/دقيقة</span></div><div class="stat"><b>' + (r.accuracy==null?'—':r.accuracy + '%') + '</b><span>الدقة</span></div></div>' +
+    '<div class="block"><h3>🎧 تسجيل الطالبة</h3><div id="aud">' + (r.audio_path ? '<span class="empty">جارٍ التحميل…</span>' : '<span class="empty">لا يوجد تسجيل صوتي لهذه المحاولة.</span>') + '</div></div>' +
+    '<div class="block"><h3>الكلمات التي أخطأت فيها</h3><div class="chips">' + (bad.length ? bad.map(b=>'<span class="chip ' + (['near','bad','miss'].indexOf(b.status)>=0 ? b.status : 'bad') + '">' + esc(b.w) + '<small>' + (b.heard ? 'سُمعت: ' + esc(b.heard) : 'لم تُسمع') + '</small></span>').join('') : '<span class="empty">لا أخطاء 🎉</span>') + '</div></div>' +
+    '<div class="block"><h3>الكلمات الصحيحة</h3><div class="chips">' + (okw.length ? okw.map(w=>'<span class="chip ok">' + esc(w) + '</span>').join('') : '<span class="empty">—</span>') + '</div></div>' +
+    '<div class="block"><h3>ملاحظات النظام</h3><ul class="notes">' + notes.map(n=>'<li>' + esc(n) + '</li>').join('') + '</ul></div>' +
+    (r.transcript ? '<div class="block"><h3>ما فهمه النظام من الصوت</h3><p class="hint" style="margin:0;font-size:15px">' + esc(r.transcript) + '</p></div>' : '');
+}
+function openReading(r){
+  const root = modal('<h2>' + esc(r.student_name) + '</h2><div class="sub">' + esc(r.class_name || 'بدون صف') + '</div>' + readingBlock(r) +
+    '<div class="row no-print"><button class="btn danger sm" id="delR">حذف هذه القراءة</button></div>');
+  if(r.audio_path) audioFor(r.audio_path, root.querySelector('#aud'));
+  root.querySelector('#delR').onclick = async ()=>{
+    if(!confirm('حذف هذه القراءة نهائيًا مع تسجيلها؟')) return;
+    try{
+      if(r.audio_path) await api('/storage/v1/object/recordings/' + r.audio_path.split('/').map(encodeURIComponent).join('/'), {method:'DELETE'}).catch(()=>{});
+      await api('/rest/v1/readings?id=eq.' + encodeURIComponent(r.id), {method:'DELETE'});
+      closeModal(); loadAll();
+    }catch(e){ alert('تعذّر الحذف.'); }
+  };
+}
+function openStudent(s){
+  const trend = s.rs.slice().reverse();
+  const stBars = META.map(m=>{
+    const a = s.rs.filter(r=>r.story_id===m.id); if(!a.length) return '';
+    const best = Math.max(...a.map(r=>r.score));
+    return '<div class="bar-row"><span class="lbl" style="width:130px">' + esc(m.emoji + ' ' + m.title) + '</span><div class="bar"><i style="width:' + best + '%;background:var(--' + (best>=85?'ok':best>=60?'near':'bad') + ')"></i></div><span class="n">' + best + '%</span></div>';
+  }).join('');
+  const qa = s.cs.map(c=>'<tr><td>' + esc(c.story_title) + '</td><td>' + c.correct + ' / ' + c.total + '</td><td>' + pill(c.pct) + '</td><td>' + esc(dt(c.created_at)) + '</td></tr>').join('');
+  const root = modal('<h2>' + esc(s.name) + '</h2><div class="sub">' + esc(s.cls || 'بدون صف') + ' · ' + s.n + ' قراءة · ' + s.stories + ' من ٩ قصص</div>' +
+    '<div class="mini-stats"><div class="stat"><b>' + Math.round(s.avg) + '%</b><span>متوسط القراءة</span></div><div class="stat"><b>' + s.best + '%</b><span>الأفضل</span></div><div class="stat"><b>' + (s.ch==null?'—':Math.round(s.ch) + '%') + '</b><span>متوسط الفهم</span></div><div class="stat"><b>' + Math.round(s.wpm) + '</b><span>كلمة/دقيقة</span></div></div>' +
+    '<div class="block"><h3>أفضل نتيجة لكل قصة</h3>' + stBars + '</div>' +
+    '<div class="block"><h3>سجل القراءات (اضغطي على قراءة لعرض تفاصيلها)</h3><div class="tbl-wrap"><table class="t">' + th(['التاريخ','القصة','النتيجة','سرعة','تسجيل']) +
+      s.rs.map((r,i)=>'<tr class="click" data-i="' + i + '"><td>' + esc(dt(r.created_at)) + '</td><td>' + esc(r.story_title) + '</td><td>' + pill(r.score) + '</td><td>' + (r.wpm||0) + '</td><td>' + (r.audio_path?'🎧':'—') + '</td></tr>').join('') + '</table></div></div>' +
+    (qa ? '<div class="block"><h3>تحدّيات الفهم</h3><div class="tbl-wrap"><table class="t">' + th(['القصة','الإجابات الصحيحة','النسبة','التاريخ']) + qa + '</table></div></div>' : ''));
+  root.querySelectorAll('tr.click').forEach(tr=>tr.onclick = ()=> openReading(s.rs[+tr.dataset.i]));
+}
+
+/* ---------- التصدير ---------- */
+function csvCell(v){
+  let s = String(v==null?'':v);
+  if(/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return '"' + s.replace(/"/g,'""') + '"';
+}
+$('csvBtn').onclick = ()=>{
+  const rs = filt(R);
+  const head = ['التاريخ','الطالبة','الصف','المستوى','القصة','النتيجة %','الدقة %','كلمات صحيحة','كلمات خطأ','إجمالي الكلمات','كلمة/دقيقة','الكلمات الخاطئة','يوجد تسجيل'];
+  const lines = [head.map(csvCell).join(',')].concat(rs.map(r=>[
+    new Date(r.created_at).toLocaleString('en-GB'), r.student_name, r.class_name, r.level, r.story_title, r.score, r.accuracy, r.words_ok, r.words_wrong, r.words_total, r.wpm,
+    (Array.isArray(r.bad_words)?r.bad_words.map(b=>b.w).join(' - '):''), r.audio_path ? 'نعم' : 'لا'
+  ].map(csvCell).join(',')));
+  const blob = new Blob(['﻿' + lines.join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reading-results.csv';
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+};
+$('printBtn').onclick = ()=> window.print();
+
+/* ---------- الدخول والخروج ---------- */
+function show(which){
+  $('loginView').hidden = which !== 'login';
+  $('setupView').hidden = which !== 'setup';
+  $('dashView').hidden = which !== 'dash';
+  $('dashView').style.display = which === 'dash' ? 'flex' : 'none';
+}
+async function enter(){
+  show('dash');
+  try{ await loadAll(); }
+  catch(e){
+    if(String(e.message) === 'noauth'){ show('login'); }
+    else if(/http 4(0|3)/.test(String(e.message))){ setSess(null); show('login'); $('loginErr').hidden = false; $('loginErr').textContent = 'هذا الحساب لا يملك صلاحية الاطلاع على النتائج. تأكدي من إعداد حساب المعلمة كما في ملف README.md.'; }
+    else { $('updated').textContent = 'تعذّر تحميل البيانات. تحقّقي من الاتصال ثم اضغطي تحديث.'; }
+  }
+}
+$('loginBtn').onclick = async ()=>{
+  $('loginErr').hidden = true;
+  try{
+    await authCall('password', {email: CFG.TEACHER_EMAIL || 'teacher@example.com', password: $('pw').value});
+    $('pw').value = ''; enter();
+  }catch(e){ $('loginErr').hidden = false; $('loginErr').textContent = 'كلمة المرور غير صحيحة.'; }
+};
+$('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+$('logoutBtn').onclick = ()=>{ setSess(null); R = []; C = []; show('login'); };
+$('refreshBtn').onclick = ()=> loadAll().catch(()=>{ $('updated').textContent = 'تعذّر التحديث.'; });
+setInterval(()=>{ if(!$('dashView').hidden && getSess() && !$('modalRoot').firstChild) loadAll().catch(()=>{}); }, 90000);
+
+if(!cloudOn()) show('setup');
+else if(getSess()) enter();
+else show('login');
+</script>
+</body>
+</html>
