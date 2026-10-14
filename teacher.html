@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>لوحة المعلمة — مكتبة القراءة</title>
+<title>قارئاتي الصغيرات — لوحة المعلمة</title>
+<meta name="description" content="نتائج القارئات الصغيرات وتسجيلاتهن.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="قارئاتي الصغيرات">
+<meta property="og:title" content="قارئاتي الصغيرات — لوحة المعلمة">
+<meta property="og:description" content="نتائج القارئات الصغيرات وتسجيلاتهن.">
+<meta property="og:locale" content="ar_AR">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Noto+Naskh+Arabic:wght@500;700&display=swap" rel="stylesheet">
@@ -248,7 +254,7 @@ main{max-width:1000px}
 
   <!-- تسجيل الدخول -->
   <section id="loginView" class="card" style="max-width:420px;margin:40px auto 0" hidden>
-    <h1 style="font-size:26px;font-weight:800;margin-bottom:4px">🔐 لوحة المعلمة</h1>
+    <h1 style="font-size:26px;font-weight:800;margin-bottom:4px">🔐 قارئاتي الصغيرات</h1><p class="hint" style="margin:0 0 4px;font-weight:700">لوحة المعلمة</p>
     <p class="hint" style="margin:0 0 14px">أدخلي كلمة المرور للاطلاع على نتائج الطالبات وتسجيلاتهن.</p>
     <div class="name-field"><label for="pw">كلمة المرور</label><input id="pw" type="password" autocomplete="current-password" dir="ltr"></div>
     <div class="row"><button class="btn primary" id="loginBtn" style="flex:1">دخول</button></div>
@@ -264,7 +270,7 @@ main{max-width:1000px}
   <div id="dashView" hidden style="display:none;flex-direction:column;gap:16px">
     <header class="top">
       <div class="toolbar">
-        <h1>📊 لوحة المعلمة</h1>
+        <h1>📊 قارئاتي الصغيرات</h1><div class="sub" style="margin-top:-4px">لوحة المعلمة</div>
         <div class="grp no-print">
           <button class="btn sm" id="refreshBtn">↻ تحديث</button>
           <button class="btn sm" id="csvBtn">⬇ تصدير Excel (CSV)</button>
@@ -450,7 +456,7 @@ function reportShell(title, body){
     '<title>' + esc(title) + '</title><style>' + REPORT_CSS + '</style></head><body><main>' +
     body +
     '<div class="disc"><b>تنبيه:</b> ' + esc(DISCLAIMER) + '</div>' +
-    '<div class="foot">أُنشئ هذا التقرير في ' + esc(fdate(Date.now())) + ' من مكتبة القراءة</div>' +
+    '<div class="foot">أُنشئ هذا التقرير في ' + esc(fdate(Date.now())) + ' من قارئاتي الصغيرات</div>' +
     '</main></body></html>';
 }
 function starsHTML(sp){
@@ -500,7 +506,7 @@ function storyReportHTML(id, p){
 }
 function overallReportHTML(p){
   const t = totals(p);
-  let h = '<h1>التقرير الشامل للقراءة</h1><div class="sub">مكتبة القراءة · ' + META.length + ' قصص في ٣ مستويات</div>';
+  let h = '<h1>التقرير الشامل للقراءة</h1><div class="sub">قارئاتي الصغيرات · ' + META.length + ' قصص في ٣ مستويات</div>';
   h += '<div class="meta"><div><span>اسم الطالبة</span><b>' + esc(p.name || '—') + '</b></div>' +
        '<div><span>القصص المكتملة</span><b>' + t.done + ' من ' + META.length + '</b></div>' +
        '<div><span>النجوم</span><b>' + t.stars + ' من ' + t.maxStars + '</b></div>' +
