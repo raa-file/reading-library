@@ -817,8 +817,21 @@ function openStudent(s){
     '<div class="block"><h3>أفضل نتيجة لكل قصة</h3>' + stBars + '</div>' +
     '<div class="block"><h3>سجل القراءات (اضغطي على قراءة لعرض تفاصيلها)</h3><div class="tbl-wrap"><table class="t">' + th(['التاريخ','القصة','النتيجة','سرعة','تسجيل']) +
       s.rs.map((r,i)=>'<tr class="click" data-i="' + i + '"><td>' + esc(dt(r.created_at)) + '</td><td>' + esc(r.story_title) + '</td><td>' + pill(r.score) + '</td><td>' + (r.wpm||0) + '</td><td>' + (r.audio_path?'🎧':'—') + '</td></tr>').join('') + '</table></div></div>' +
-    (qa ? '<div class="block"><h3>تحدّيات الفهم</h3><div class="tbl-wrap"><table class="t">' + th(['القصة','الإجابات الصحيحة','النسبة','التاريخ']) + qa + '</table></div></div>' : ''));
+    (qa ? '<div class="block"><h3>تحدّيات الفهم</h3><div class="tbl-wrap"><table class="t">' + th(['القصة','الإجابات الصحيحة','النسبة','التاريخ']) + qa + '</table></div></div>' : '') +
+    '<div class="row no-print" style="margin-top:18px"><button class="btn danger sm" id="delS">حذف كل بيانات هذه الطالبة</button></div>');
   root.querySelectorAll('tr.click').forEach(tr=>tr.onclick = ()=> openReading(s.rs[+tr.dataset.i]));
+  root.querySelector('#delS').onclick = async ()=>{
+    if(!confirm('حذف جميع قراءات ' + s.name + ' وتحدّياتها وتسجيلاتها نهائيًا؟')) return;
+    try{
+      for(const r of s.rs){
+        if(r.audio_path) await api('/storage/v1/object/recordings/' + r.audio_path.split('/').map(encodeURIComponent).join('/'), {method:'DELETE'}).catch(()=>{});
+      }
+      const f = 'student_name=eq.' + encodeURIComponent(s.rs[0].student_name) + '&class_name=eq.' + encodeURIComponent(s.rs[0].class_name || '');
+      await api('/rest/v1/readings?' + f, {method:'DELETE'});
+      await api('/rest/v1/challenges?' + f, {method:'DELETE'});
+      closeModal(); loadAll();
+    }catch(e){ alert('تعذّر الحذف.'); }
+  };
 }
 
 /* ---------- التصدير ---------- */
